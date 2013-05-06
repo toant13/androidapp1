@@ -1,6 +1,6 @@
 package com.example.model;
 
-//test
+
 
 public class Restaurant 
 {
