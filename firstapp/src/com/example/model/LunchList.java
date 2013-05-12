@@ -3,21 +3,32 @@ package com.example.model;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.firstapp.R;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RadioGroup;
-
+import android.widget.TextView;
 
 
 
 public class LunchList extends Activity
 {
-	Restaurant r = new Restaurant();
+	List<Restaurant> model = new ArrayList<Restaurant>();
+	ArrayAdapter<Restaurant> adapter = null;
+	String TAG = "testtag";
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState)
@@ -27,7 +38,16 @@ public class LunchList extends Activity
 		
 		Button save = (Button)findViewById(R.id.save);
 		save.setOnClickListener(onSave);
+		
+		ListView list = (ListView) findViewById(R.id.restaurants);
+		adapter = new RestaurantAdapter();
+		list.setAdapter(adapter);
+		
+		Log.e(TAG,"created log....");
 	}
+	
+	
+
 	
 	private View.OnClickListener onSave = new View.OnClickListener() 
 	{
@@ -38,9 +58,12 @@ public class LunchList extends Activity
 			EditText name = (EditText)findViewById(R.id.name);
 			EditText address = (EditText)findViewById(R.id.addr);
 			
+			
+			Restaurant r = new Restaurant();
 			r.setName(name.getText().toString());
 			r.setAddress(address.getText().toString());
 
+			Log.i(TAG,"testingthets log");
 			
 			RadioGroup types = (RadioGroup) findViewById(R.id.type);
 		
@@ -56,6 +79,81 @@ public class LunchList extends Activity
 					r.setType("delivery");
 					break;	
 			}
+			adapter.add(r);
+			Log.i(TAG,r.getName());
+			Log.i(TAG,r.getAddress());
+			
 		}
 	};
+	
+	class RestaurantAdapter extends ArrayAdapter<Restaurant>
+	{
+		
+
+		RestaurantAdapter()
+		{	
+			
+			super(LunchList.this, 
+					android.R.layout.simple_list_item_1, 
+					model);
+		}
+		
+		
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
+			View row = convertView;
+			RestaurantHolder holder = null;
+			
+			if(row == null)
+			{
+				LayoutInflater inflater = getLayoutInflater();			
+				row = inflater.inflate(R.layout.row, parent, false);
+				holder = new RestaurantHolder(row);
+				row.setTag(holder);
+			}
+			else
+			{
+				holder = (RestaurantHolder)row.getTag();
+			}
+			
+			holder.populateForm(model.get(position));
+			
+			return row;
+		}
+	}
+	
+	static class RestaurantHolder
+	{
+		private TextView name = null;
+		private TextView address = null;
+		private ImageView icon = null;
+		
+		RestaurantHolder (View row)
+		{
+			name = (TextView)row.findViewById(R.id.title);
+			address = (TextView)row.findViewById(R.id.address);
+			icon = (ImageView)row.findViewById(R.id.icon);
+		}
+		
+		void populateForm(Restaurant r)
+		{
+			name.setText(r.getName());
+			address.setText(r.getAddress());
+			
+			if(r.getType().equals("sit_down"))
+			{
+				icon.setImageResource(R.drawable.ball_red);
+			}
+			else if (r.getType().equals("take_out"))
+			{
+				icon.setImageResource(R.drawable.ball_yellow);
+			}
+			else
+			{
+				icon.setImageResource(R.drawable.ball_green);
+			}
+		}
+	}
+	
 }
+
